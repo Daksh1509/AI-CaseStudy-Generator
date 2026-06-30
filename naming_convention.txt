@@ -1,0 +1,15 @@
+Decide and lock the naming convention.
+
+Use this rule for every file:
+
+text
+01_source_short_description.extension
+Examples:
+
+01_integrated_annual_report_2025_26.pdf
+
+02_hr_case_study_infosys_blogspot.html
+
+03_businessline_zerodha_profit_surge.html
+
+This is important because your Day 2 task explicitly includes deciding the naming convention before coding the loader.
