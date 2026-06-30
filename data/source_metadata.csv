@@ -1,0 +1,14 @@
+company_name,source_id,filename,source_type,origin_url,description
+infosys,src_01,01_integrated_annual_report_2025_26.pdf,annual_report,,Integrated annual report with strategy, performance, segments, ESG and detailed financials.
+infosys,src_02,02_hr_case_study_infosys_blogspot.html,case_study,https://mbauncle.blogspot.com/2012/10/case-study-infosysa-strategic-human_24.html,Teaching-style HR case on Infosys strategic human resource management and people practices.
+
+nykaa,src_01,01_investor_presentation_q4_fy25.pdf,investor_presentation,https://www.nykaa.com/media/wysiwyg/uiTools/2025-5/Investor-Presentation-Q4-and-FY25.pdf,Q4 FY25 investor deck with business model, segment performance, growth metrics, and strategy.
+nykaa,src_02,02_annual_return_2024_25.pdf,annual_return,,Annual return document summarizing company legal, shareholding, and governance details.
+nykaa,src_03,03_falguni_nayar_success_story_1.html,founder_story,https://startupsamadhan.com/falguni-nayar-success-story-nykaa-founder-india-richest-self-made-woman/,Narrative founder success story covering Falguni Nayar’s journey and origin of Nykaa.
+nykaa,src_04,04_falguni_nayar_success_story_2.html,founder_story,https://www.sheinspiremagazine.com/blog/falguni-nayar-inspirational-story,Inspirational article on Falguni Nayar’s story with extra personal and strategic details.
+
+zerodha,src_01,01_zerodha_open_source_2025_report.html,report,https://zerodha.com/open-source/2025-report/,Open-source Zerodha 2025 report with charts and narrative on users, revenue, profits, and business performance.
+zerodha,src_02,02_secrets_of_zerodha_narrative.pdf,narrative_summary,,Narrative deck about Zerodha’s founders, pricing strategy, profitability, risks, and operations.
+zerodha,src_03,03_businessline_zerodha_profit_surge.html,news_article,https://www.thehindubusinessline.com/markets/zerodha-hits-1-billion-revenue-mark-in-fy24-reports-profit-surge/article68991819.ece,News article on Zerodha crossing ₹1 billion revenue and profit surge in FY24.
+zerodha,src_04,04_origin_story_nithin_kamath.html,founder_story,https://www.businesstoday.in/latest/corporate/story/i-quickly-realised-that-nikhil-is-a-better-trader-than-i-am-nithin-kamath-on-the-origins-of-zerodha-388279-2023-07-05,Origin story article about Nithin and Nikhil Kamath, early trading, and birth of Zerodha.
+zerodha,src_05,05_about_zerodha.html,official_page,https://zerodha.com/about/,Official Zerodha “About” page describing company mission, products, and position.
