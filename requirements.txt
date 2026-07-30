@@ -1,0 +1,10 @@
+streamlit
+pandas
+requests
+beautifulsoup4
+PyPDF2
+pdfplumber
+sentence-transformers
+transformers
+torch
+python-dotenv
