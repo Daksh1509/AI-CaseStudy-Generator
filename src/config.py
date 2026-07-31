@@ -1,7 +1,8 @@
 from pathlib import Path
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+load_dotenv(BASE_DIR / ".env")
 APP_DIR = BASE_DIR / "app"
 SRC_DIR = BASE_DIR / "src"
 DATA_DIR = BASE_DIR / "data"

@@ -1,0 +1,1 @@
+chunk_id: src_01_chunk_002 | Issue: chunk lacks company name mention, model correctly flags it as unclear context | Fix idea: include company_name as explicit context reminder in every chunk before sending to LLM, or accept this as expected behavior for generic body-text chunks.
