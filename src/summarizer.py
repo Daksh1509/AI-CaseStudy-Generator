@@ -89,15 +89,60 @@ def summarize_chunk(chunk: Dict, use_llm: bool = True) -> Dict:
     }
 
 
+def summarize_chunk(chunk: Dict, use_llm: bool = True) -> Dict:
+    """
+    Summarize a single chunk while preserving all metadata required
+    for downstream insight extraction and evidence mapping.
+    """
+
+    prompt = build_summarization_prompt(chunk)
+
+    if use_llm:
+        try:
+            summary_text = call_llm(prompt)
+        except Exception as error:
+            logger.warning(
+                "LLM call failed for %s, using fallback: %s",
+                chunk["chunk_id"],
+                error,
+            )
+            summary_text = chunk["text"][:200].strip() + "..."
+    else:
+        summary_text = chunk["text"][:200].strip() + "..."
+
+    keywords = extract_keywords(chunk["text"])
+
+    return {
+        "company_name": chunk["company_name"],
+        "source_id": chunk["source_id"],
+        "source_type": chunk["source_type"],
+        "source_name": chunk["source_name"],
+        "chunk_id": chunk["chunk_id"],
+        "summary": summary_text,
+        "keywords": keywords,
+    }
+
 def summarize_chunks(chunks: List[Dict], use_llm: bool = True) -> List[Dict]:
+    """
+    Summarize a list of chunks.
+    """
+
     summaries = []
+
     for chunk in chunks:
         try:
-            summaries.append(summarize_chunk(chunk, use_llm=use_llm))
-        except Exception as error:
-            logger.warning("Failed to summarize chunk %s: %s", chunk.get("chunk_id"), error)
-    return summaries
+            summaries.append(
+                summarize_chunk(chunk, use_llm=use_llm)
+            )
 
+        except Exception as error:
+            logger.warning(
+                "Failed to summarize chunk %s: %s",
+                chunk.get("chunk_id"),
+                error,
+            )
+
+    return summaries
 
 def save_summaries_to_disk(company_name: str, summaries: list) -> Path:
     from src.config import BASE_DIR
