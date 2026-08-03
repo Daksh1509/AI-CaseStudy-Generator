@@ -317,62 +317,38 @@ def save_case_study_to_disk(
     Save generated case study to outputs/case_studies/.
     """
 
-    from src.config import BASE_DIR
+    from src.config import CASE_STUDIES_DIR
 
-    output_dir = (
-
-        BASE_DIR
-        / "outputs"
-        / "case_studies"
-
-    )
-
-    output_dir.mkdir(
-
+    CASE_STUDIES_DIR.mkdir(
         parents=True,
-
         exist_ok=True,
-
     )
 
     output_path = (
-
-        output_dir
+        CASE_STUDIES_DIR
         / f"{company_name.lower()}_case_study.json"
-
     )
 
     with open(
-
         output_path,
-
         "w",
-
         encoding="utf-8",
-
     ) as file:
 
         json.dump(
-
             case_study,
-
             file,
-
             indent=4,
-
             ensure_ascii=False,
-
         )
 
     logger.info(
-
         "Case study saved to %s",
-
         output_path,
-
     )
 
     return output_path
+    
 # ==========================================================
 # Main
 # ==========================================================
