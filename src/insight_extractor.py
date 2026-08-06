@@ -20,6 +20,7 @@ can be performed later.
 
 import os
 import json
+import time
 import logging
 from pathlib import Path
 from typing import Dict, List
@@ -43,11 +44,9 @@ def get_client():
     """
     Lazily initialize the Groq client.
     """
-
     global _client
 
     if _client is None:
-
         api_key = os.environ.get("GROQ_API_KEY")
 
         if not api_key:
@@ -69,7 +68,6 @@ def build_extraction_prompt(summary_record: Dict) -> str:
     Prompt for classifying one summary into exactly one
     business-case section.
     """
-
     return f"""
 You are an expert business case-study analyst.
 
@@ -87,20 +85,16 @@ Classify it into EXACTLY ONE of these sections:
 Rules:
 
 1. Choose only ONE section.
-
 2. Rewrite the summary into one concise business insight.
-
 3. Do NOT invent facts.
-
 4. Use only information present.
-
 5. Return ONLY valid JSON.
 
 Expected format:
 
 {{
-    "section":"Strategy",
-    "insight":"The company adopted a flat brokerage pricing model."
+"section":"Strategy",
+"insight":"The company adopted a flat brokerage pricing model."
 }}
 
 Company:
@@ -119,22 +113,17 @@ def call_llm(prompt: str) -> str:
     """
     Call Groq Llama model.
     """
-
     client = get_client()
 
     response = client.chat.completions.create(
-
         model="llama-3.3-70b-versatile",
-
         messages=[
             {
                 "role": "user",
                 "content": prompt,
             }
         ],
-
         temperature=0.2,
-
         max_tokens=250,
     )
 
@@ -149,9 +138,7 @@ def parse_json_response(response_text: str) -> Dict:
     """
     Parse LLM JSON safely.
     """
-
     try:
-
         start = response_text.find("{")
         end = response_text.rfind("}")
 
@@ -163,7 +150,6 @@ def parse_json_response(response_text: str) -> Dict:
         return json.loads(json_text)
 
     except Exception as error:
-
         logger.warning(
             "Failed to parse JSON response: %s",
             error
@@ -180,66 +166,41 @@ def parse_json_response(response_text: str) -> Dict:
 # ==========================================================
 
 def extract_single_insight(summary_record: Dict,
-                           use_llm: bool = True) -> Dict:
+                            use_llm: bool = True) -> Dict:
     """
     Convert one summary into one structured insight.
     """
-
     prompt = build_extraction_prompt(summary_record)
 
     if use_llm:
-
         try:
-
             response = call_llm(prompt)
-
             parsed = parse_json_response(response)
-
         except Exception as error:
-
             logger.warning(
                 "LLM failed for %s : %s",
                 summary_record["chunk_id"],
                 error
             )
-
             parsed = {
                 "section": "Learning",
                 "insight": summary_record["summary"]
             }
-
     else:
-
         parsed = {
             "section": "Learning",
             "insight": summary_record["summary"]
         }
 
     return {
-
-        "company_name":
-            summary_record["company_name"],
-
-        "source_id":
-            summary_record["source_id"],
-
-        "source_type":
-            summary_record["source_type"],
-
-        "source_name":
-            summary_record["source_name"],
-
-        "chunk_id":
-            summary_record["chunk_id"],
-
-        "section":
-            parsed["section"].strip().lower(),
-
-        "insight":
-            parsed["insight"].strip(),
-
-        "keywords":
-            summary_record["keywords"]
+        "company_name": summary_record["company_name"],
+        "source_id": summary_record["source_id"],
+        "source_type": summary_record["source_type"],
+        "source_name": summary_record["source_name"],
+        "chunk_id": summary_record["chunk_id"],
+        "section": parsed["section"].strip().lower(),
+        "insight": parsed["insight"].strip(),
+        "keywords": summary_record["keywords"]
     }
 
 
@@ -254,17 +215,13 @@ def extract_all_insights(
     """
     Extract structured insights from all summaries.
     """
-
     insights = []
-
     total = len(summaries)
 
     logger.info("Processing %d summaries...", total)
 
     for index, summary in enumerate(summaries, start=1):
-
         try:
-
             logger.info(
                 "Extracting insight %d/%d",
                 index,
@@ -279,12 +236,14 @@ def extract_all_insights(
             insights.append(insight)
 
         except Exception as error:
-
             logger.warning(
                 "Failed to process %s : %s",
                 summary.get("chunk_id"),
                 error,
             )
+
+        # Small delay to avoid hitting Groq rate limits
+        time.sleep(1)
 
     logger.info("Finished extracting insights.")
 
@@ -299,75 +258,63 @@ def group_insights(insights: List[Dict]) -> Dict:
     """
     Group insights into the six business case sections.
     """
-
     if not insights:
-        return {}
+        logger.warning(
+            "No insights were extracted. "
+            "Returning empty grouped structure with fallback company_name."
+        )
+        return {
+            "company_name": "unknown",
+            "background": [],
+            "challenge": [],
+            "strategy": [],
+            "execution": [],
+            "results": [],
+            "learning": [],
+        }
 
     grouped = {
-
         "company_name": insights[0]["company_name"],
-
         "background": [],
-
         "challenge": [],
-
         "strategy": [],
-
         "execution": [],
-
         "results": [],
-
         "learning": [],
     }
 
     valid_sections = {
-
         "background",
-
         "challenge",
-
         "strategy",
-
         "execution",
-
         "results",
-
         "learning",
     }
 
     for insight in insights:
-
         section = insight["section"].lower()
 
         if section not in valid_sections:
-
             logger.warning(
                 "Unknown section '%s'. Moving to learning.",
                 section,
             )
-
             section = "learning"
 
         grouped[section].append(
-
             {
-
                 "chunk_id": insight["chunk_id"],
-
                 "source_id": insight["source_id"],
-
                 "source_type": insight["source_type"],
-
                 "source_name": insight["source_name"],
-
                 "insight": insight["insight"],
-
                 "keywords": insight["keywords"],
             }
-
         )
 
     return grouped
+
 
 # ==========================================================
 # Save Insights
@@ -380,7 +327,6 @@ def save_insights_to_disk(
     """
     Save grouped insights to outputs/insights/.
     """
-
     from src.config import INSIGHTS_DIR
 
     INSIGHTS_DIR.mkdir(
@@ -398,7 +344,6 @@ def save_insights_to_disk(
         "w",
         encoding="utf-8",
     ) as file:
-
         json.dump(
             grouped_insights,
             file,
@@ -412,6 +357,8 @@ def save_insights_to_disk(
     )
 
     return output_path
+
+
 # ==========================================================
 # Load Saved Summaries
 # ==========================================================
@@ -422,7 +369,6 @@ def load_summaries_from_disk(
     """
     Load summaries generated by summarizer.py.
     """
-
     from src.config import SUMMARIES_DIR
 
     summary_file = (
@@ -431,7 +377,6 @@ def load_summaries_from_disk(
     )
 
     if not summary_file.exists():
-
         raise FileNotFoundError(
             f"Summary file not found: {summary_file}"
         )
@@ -441,7 +386,6 @@ def load_summaries_from_disk(
         "r",
         encoding="utf-8",
     ) as file:
-
         summaries = json.load(file)
 
     logger.info(
@@ -451,12 +395,12 @@ def load_summaries_from_disk(
 
     return summaries
 
+
 # ==========================================================
 # Main
 # ==========================================================
 
 if __name__ == "__main__":
-
     company = "zerodha"
 
     print("=" * 80)
@@ -490,9 +434,7 @@ if __name__ == "__main__":
     ]
 
     for section in sections:
-
         count = len(grouped.get(section, []))
-
         print(f"{section.capitalize():12}: {count}")
 
     print("\n")
@@ -502,7 +444,6 @@ if __name__ == "__main__":
     print("=" * 80)
 
     for section in sections:
-
         values = grouped.get(section, [])
 
         if not values:
@@ -511,7 +452,6 @@ if __name__ == "__main__":
         print(f"\n[{section.upper()}]\n")
 
         for item in values[:2]:
-
             print(f"- {item['insight']}")
 
     output_path = save_insights_to_disk(
