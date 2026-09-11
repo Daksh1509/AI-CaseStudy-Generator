@@ -133,6 +133,10 @@ def preprocess_text(text: str) -> str:
     -> Remove extra spaces
     -> Remove empty lines
     """
+    if not text:
+        logger.warning("preprocess_text received empty or None text.")
+        return ""
+
     logger.info("Starting preprocessing pipeline.")
 
     text = normalize_unicode(text)

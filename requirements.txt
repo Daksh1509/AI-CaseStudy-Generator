@@ -10,3 +10,4 @@ torch
 python-dotenv
 groq 
 pymupdf
+pytest

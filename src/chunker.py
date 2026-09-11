@@ -7,8 +7,11 @@ downstream summarization and generation.
 
 from typing import List, Dict
 import json
+import logging
 from pathlib import Path
 from src.config import BASE_DIR
+
+logger = logging.getLogger(__name__)
 
 CHUNK_SIZE = 800       # characters per chunk
 CHUNK_OVERLAP = 100     # overlap to preserve context between chunks
@@ -39,7 +42,15 @@ def chunk_document(document: Dict) -> List[Dict]:
     Take one document dict (from input_loader.py) and return
     a list of chunk dicts following the shared data contract.
     """
-    raw_chunks = split_text_into_chunks(document["text"])
+    text = document.get("text", "")
+    if not text or not text.strip():
+        logger.warning(
+            "Document %s has no usable text; producing 0 chunks.",
+            document.get("source_name", document.get("source_id", "unknown")),
+        )
+        return []
+
+    raw_chunks = split_text_into_chunks(text)
     chunked_records = []
 
     for index, chunk_text in enumerate(raw_chunks, start=1):

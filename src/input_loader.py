@@ -187,6 +187,13 @@ def load_single_file(
             f"Unsupported file type: {file_path.name}"
         )
 
+    if len(text.strip()) < 50:
+        logger.warning(
+            "Weak extraction: %s produced only %d characters of text.",
+            file_path.name,
+            len(text.strip()),
+        )
+
     return {
         "company_name": company_name.lower(),
         "source_id": source_id,
