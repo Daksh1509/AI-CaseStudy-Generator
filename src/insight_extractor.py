@@ -124,10 +124,14 @@ def call_llm(prompt: str) -> str:
             }
         ],
         temperature=0.2,
-        max_tokens=250,
+        max_tokens=1024,
+        response_format={"type": "json_object"},
     )
 
-    return response.choices[0].message.content.strip()
+    content = response.choices[0].message.content
+    if not content:
+        raise ValueError("Empty completion from model")
+    return content.strip()
 
 
 # ==========================================================
@@ -198,8 +202,8 @@ def extract_single_insight(summary_record: Dict,
         "source_type": summary_record["source_type"],
         "source_name": summary_record["source_name"],
         "chunk_id": summary_record["chunk_id"],
-        "section": parsed["section"].strip().lower(),
-        "insight": parsed["insight"].strip(),
+        "section": (parsed.get("section") or "learning").strip().lower(),
+        "insight": (parsed.get("insight") or summary_record["summary"]).strip(),
         "keywords": summary_record["keywords"]
     }
 

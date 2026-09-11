@@ -25,11 +25,18 @@ Nothing here renames or restructures any existing module contract.
 It only calls the existing functions in order.
 """
 
+import sys
 import tempfile
 from pathlib import Path
-
+ 
 import streamlit as st
-
+ 
+# `streamlit run app/streamlit_app.py` puts the script's own folder (app/)
+# on sys.path, not the project root, so `import src...` would fail. Add the
+# project root (the parent of app/) ourselves so the app runs no matter how
+# it is launched.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+ 
 from src.config import CASE_STUDIES_DIR
 
 # Input side

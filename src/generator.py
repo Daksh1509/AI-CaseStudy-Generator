@@ -132,10 +132,13 @@ def call_llm(prompt: str) -> str:
 
         temperature=0.3,
 
-        max_tokens=500,
+        max_tokens=1200,
     )
 
-    return response.choices[0].message.content.strip()
+    content = response.choices[0].message.content
+    if not content:
+        raise ValueError("Empty completion from model")
+    return content.strip()
 
 
 # ==========================================================
